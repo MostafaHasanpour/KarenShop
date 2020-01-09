@@ -23,7 +23,7 @@ namespace KarenShop.Api.Controllers
 
         [HttpPost("/api/v1/login")]
         public async Task<ResponseUserDto> Login(LoginDto model)
-        { 
+        {
             var user = await _shopUserRepository.LoginUser(model);
             if (user == null)
             {
@@ -39,11 +39,14 @@ namespace KarenShop.Api.Controllers
                 {
                     IsSuccess = true,
                     Error = "",
-                    CompanyName=user.CompanyName,
-                    Email=user.Email,
-                    FullName=user.FullName,
-                    PhoneNumber=user.PhoneNumber,
-                    Id = user.Id
+                    CompanyName = user.CompanyName,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
+                    Id = user.Id,
+                    IsSeller = user.IsSeller,
+                    Address = user.Address,
+                    ProfilePicture = user.ProfilePicture
                 };
             }
         }
@@ -78,9 +81,68 @@ namespace KarenShop.Api.Controllers
                     Email = user.Email,
                     FullName = user.FullName,
                     PhoneNumber = user.PhoneNumber,
-                    Id=user.Id
+                    Id = user.Id,
+                    IsSeller = user.IsSeller,
+                    Address = user.Address,
+                    ProfilePicture = user.ProfilePicture
                 };
             }
+        }
+
+        [HttpPost("/api/v1/reset-password")]
+        public async Task<BaseResponseDto> ResetPassword(ResetPasswordDto model)
+        {
+            if (model.NewPassword != model.ConfirmNewPassword)
+            {
+                return new BaseResponseDto()
+                {
+                    Error = "رمز عبور جدید و تایید آن یکسان نیست",
+                    IsSuccess = false
+                };
+            }
+            else
+            {
+                var result = await _shopUserRepository.ResetPassword(model);
+                if (result == true)
+                {
+                    return new BaseResponseDto()
+                    {
+                        IsSuccess = true,
+                        Error = "",
+                    };
+                }
+                else
+                {
+                    return new BaseResponseDto()
+                    {
+                        IsSuccess = false,
+                        Error = "رمز عبور را اشتباه وارد کرده اید...",
+                    };
+                }
+            }
+        }
+
+        [HttpPost("/api/v1/update-user")]
+        public async Task<BaseResponseDto> UpdateUser(UpdateProfileDtoDto model)
+        {
+            var result = await _shopUserRepository.UpdateUser(model);
+            if (result == true)
+            {
+                return new BaseResponseDto()
+                {
+                    IsSuccess = true,
+                    Error = "",
+                };
+            }
+            else
+            {
+                return new BaseResponseDto()
+                {
+                    IsSuccess = false,
+                    Error = "خطایی رخ داده است...",
+                };
+            }
+
         }
     }
 }

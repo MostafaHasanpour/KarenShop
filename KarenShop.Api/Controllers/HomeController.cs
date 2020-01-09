@@ -26,16 +26,16 @@ namespace KarenShop.Api.Controllers
             return await _productRepository.GetOffers();
         }
 
-        [HttpGet("{category}")]
-        public async Task<ActionResult<ProductTypesDto>> GetProductTypesByCategory(string category)
+        [HttpGet("{category}/{subCategory?}")]
+        public async Task<ActionResult<ProductTypesDto>> GetProductTypesByCategory(string category, string subCategory = "")
         {
             try
             {
-                return Ok(await _productRepository.GetProductTypesByCategory(await _productRepository.GetCategoryIdByEnName(category)));
+                return Ok(await _productRepository.GetProductTypesByCategory(await _productRepository.GetCategoryIdByEnName(category), await _productRepository.GetSubCategoryIdByEnName(subCategory)));
             }
             catch (Exception)
             {
-                return NotFound(new ProductTypesDto() { IsSuccess=false,Error="این آدرس وجود ندارد!!!"});
+                return NotFound(new ProductTypesDto() { IsSuccess = false, Error = "این آدرس وجود ندارد!!!" });
             }
         }
     }

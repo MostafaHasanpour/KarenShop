@@ -9,6 +9,7 @@ namespace KarenShop.Api.Domains.Dtos
     {
         public decimal OriginalPrice { get; set; }
         public decimal Discount { get; set; }
+        public string Description { get; set; }
         public decimal DiscountPercent { get; set; }
         public decimal PayPrice { get; set; }
     }

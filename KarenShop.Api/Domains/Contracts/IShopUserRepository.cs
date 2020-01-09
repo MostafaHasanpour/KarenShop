@@ -9,7 +9,10 @@ namespace KarenShop.Api.Domains.Contracts
 {
     public interface IShopUserRepository
     {
+        Task<ShopUser> GetUser(int id);
         Task<ShopUser> LoginUser(LoginDto login);
         Task<ShopUser> RegisterUser(RegisterDto register);
+        Task<bool> ResetPassword(ResetPasswordDto resetPassword);
+        Task<bool> UpdateUser(UpdateProfileDtoDto updateProfile);
     }
 }

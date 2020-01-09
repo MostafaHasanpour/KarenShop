@@ -14,12 +14,43 @@ namespace KarenShop.Api.Infrastructures.Repository
         protected DbSet<Product> _products;
         protected DbSet<ProductType> _productTypes;
         protected DbSet<Category> _categories;
+        protected DbSet<SubCategory> _subCategories;
 
         public ProductRepository(KarenShopDbContext dbContext) : base(dbContext)
         {
             _products = dbContext.Products;
             _productTypes = dbContext.ProductTypes;
             _categories = dbContext.Categories;
+            _subCategories = dbContext.SubCategories;
+        }
+
+        public async Task<BaseResponseDto> AddPrice(NewPriceDto newPrice)
+        {
+            try
+            {
+                var product = await GetProduct(newPrice.ProductId);
+                if (product.ProductPrices.Count(x => x.ShopUserId == newPrice.ShopUserId) > 0)
+                {
+                    product.ProductPrices.FirstOrDefault(x => x.ShopUserId == newPrice.ShopUserId).Price = newPrice.Price;
+                    product.ProductPrices.FirstOrDefault(x => x.ShopUserId == newPrice.ShopUserId).Discount = newPrice.Discount;
+                }
+                else
+                {
+                    var price = new ProductPrice()
+                    {
+                        ShopUserId = newPrice.ShopUserId,
+                        Price = newPrice.Price,
+                        Discount = newPrice.Discount
+                    };
+                    product.ProductPrices.Add(price);
+                }
+                await _context.SaveChangesAsync();
+                return new BaseResponseDto() { IsSuccess = true, Error = "" };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseDto() { IsSuccess = false, Error = "به دلایلی قادر به ذخیره سازی نیست لطفا پس از بررسی اطلاعات دوباره تلاش کنید..." };
+            }
         }
 
         public async Task<int> GetCategoryIdByEnName(string enName)
@@ -42,7 +73,8 @@ namespace KarenShop.Api.Infrastructures.Repository
                         PayPrice = x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price -
                                x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Discount,
                         DiscountPercent = decimal.Parse((Math.Round((x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Discount /
-                                        x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0"))
+                                        x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0")),
+                        Description= x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Description
                     }
                 }).ToListAsync();
             if (products.Count == 0)
@@ -57,8 +89,8 @@ namespace KarenShop.Api.Infrastructures.Repository
             var productDetails = await _products.Where(x => x.Id == product).Select(x =>
                                 new ProductDetailDto()
                                 {
-                                    Name=x.Name,
-                                    Description=x.Description,
+                                    Name = x.Name,
+                                    Description = x.Description,
                                     Brand = "",
                                     Category = x.Category.Name,
                                     Colors = x.ProductColors.Select(y =>
@@ -77,7 +109,8 @@ namespace KarenShop.Api.Infrastructures.Repository
                                         PayPrice = x.ProductPrices.OrderBy(a => a.Price - a.Discount).FirstOrDefault().Price -
                                             x.ProductPrices.OrderBy(a => a.Price - a.Discount).FirstOrDefault().Discount,
                                         DiscountPercent = decimal.Parse((Math.Round((x.ProductPrices.OrderBy(a => a.Price - a.Discount).FirstOrDefault().Discount /
-                                            x.ProductPrices.OrderBy(a => a.Price - a.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0"))
+                                            x.ProductPrices.OrderBy(a => a.Price - a.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0")),
+                                        Description = x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Description
                                     },
                                     Images = x.PictureAddresses.Select(x => x.Uri).ToList(),
                                     SubCategory = x.SubCategory.Name,
@@ -93,7 +126,8 @@ namespace KarenShop.Api.Infrastructures.Repository
                                                   OriginalPrice = y.Price,
                                                   PayPrice = y.Price - y.Discount,
                                                   DiscountPercent = decimal.Parse((Math.Round((y.Discount /
-                                                    y.Price) * 100, 0)).ToString("0"))
+                                                    y.Price) * 100, 0)).ToString("0")),
+                                                  Description = y.Description
                                               }
                                           }).ToList(),
                                     Sizes = x.ProductSizes.Select(x => x.SizeName).ToList()
@@ -123,7 +157,8 @@ namespace KarenShop.Api.Infrastructures.Repository
                         PayPrice = x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price -
                                x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Discount,
                         DiscountPercent = decimal.Parse((Math.Round((x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Discount /
-                                        x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0"))
+                                        x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0")),
+                        Description = x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Description
                     }
                 }).ToListAsync();
             var type = await _productTypes.Include(x => x.SubCategory).ThenInclude(x => x.Category)
@@ -171,7 +206,8 @@ namespace KarenShop.Api.Infrastructures.Repository
                         PayPrice = x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price -
                                x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Discount,
                         DiscountPercent = decimal.Parse((Math.Round((x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Discount /
-                                        x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0"))
+                                        x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Price) * 100, 0)).ToString("0")),
+                        Description = x.ProductPrices.OrderBy(x => x.Price - x.Discount).FirstOrDefault().Description
                     }
                 }).ToListAsync();
             var type = await _productTypes.Include(x => x.SubCategory).ThenInclude(x => x.Category)
@@ -204,9 +240,9 @@ namespace KarenShop.Api.Infrastructures.Repository
                 };
         }
 
-        public async Task<ProductTypesDto> GetProductTypesByCategory(int catId)
+        public async Task<ProductTypesDto> GetProductTypesByCategory(int catId, int? subCatId)
         {
-            var types = await _productTypes.Where(x => x.SubCategory.CategoryId == catId)
+            var types = await _productTypes.Where(x => x.SubCategory.CategoryId == catId && (x.SubCategoryId == subCatId || subCatId == null))
                         .Select(x =>
                             new ProductTypeDto()
                             {
@@ -227,6 +263,19 @@ namespace KarenShop.Api.Infrastructures.Repository
                 IsSuccess = true,
                 ProductTypes = types
             };
+        }
+
+        public async Task<Product> GetProduct(long product)
+        {
+            return await _products.Include(x => x.ProductPrices)
+                .FirstOrDefaultAsync(x => x.Id == product);
+        }
+
+        public async Task<int?> GetSubCategoryIdByEnName(string enName)
+        {
+            if (string.IsNullOrWhiteSpace(enName))
+                return null;
+            return (await _subCategories.FirstOrDefaultAsync(x => x.EnName == enName)).Id;
         }
     }
 }

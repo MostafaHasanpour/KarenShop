@@ -18,6 +18,8 @@ namespace KarenShop.Api.Infrastructures.Repository
             _shopUsers = dbContext.ShopUsers;
         }
 
+        public async Task<ShopUser> GetUser(int id) => await _shopUsers.FindAsync(id);
+
         public async Task<ShopUser> LoginUser(LoginDto login)
         {
             return await _shopUsers.FirstOrDefaultAsync(x => (x.Email == login.EmailOrPhoneNumber || x.PhoneNumber == login.EmailOrPhoneNumber) &&
@@ -41,6 +43,50 @@ namespace KarenShop.Api.Infrastructures.Repository
                 return _shopUsers.FirstOrDefault(x => x.Email == register.Email);
             }
             else return null;
+        }
+
+        public async Task<bool> ResetPassword(ResetPasswordDto resetPassword)
+        {
+            try
+            {
+                var user = await GetUser(resetPassword.Id);
+                if (user.Password == resetPassword.CurrentPassword)
+                {
+                    user.Password = resetPassword.NewPassword;
+                    await _context.SaveChangesAsync();
+
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateUser(UpdateProfileDtoDto updateProfile)
+        {
+            try
+            {
+                var user = await GetUser(updateProfile.Id);
+                user.Address = updateProfile.Address;
+                user.CompanyName = updateProfile.CompanyName;
+                user.Email = updateProfile.Email;
+                user.FullName = updateProfile.FullName;
+                user.PhoneNumber = updateProfile.Phone;
+                user.ProfilePicture = updateProfile.ProfilePicture;
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
         }
     }
 }

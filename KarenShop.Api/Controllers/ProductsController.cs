@@ -71,7 +71,7 @@ namespace KarenShop.Api.Controllers
         {
             try
             {
-                return await _productRepository.GetProductById(product?? 0);
+                return await _productRepository.GetProductById(product ?? 0);
             }
             catch (Exception)
             {
@@ -83,5 +83,10 @@ namespace KarenShop.Api.Controllers
             }
         }
 
+        [HttpPost("add-price")]
+        public async Task<BaseResponseDto> AddPrice(NewPriceDto newPrice)
+        {
+            return await _productRepository.AddPrice(newPrice);
+        }
     }
 }
