@@ -13,6 +13,6 @@ namespace KarenShop.Api.Domains.Contracts
         Task<ShopUser> LoginUser(LoginDto login);
         Task<ShopUser> RegisterUser(RegisterDto register);
         Task<bool> ResetPassword(ResetPasswordDto resetPassword);
-        Task<bool> UpdateUser(UpdateProfileDtoDto updateProfile);
+        Task<ShopUser> UpdateUser(UpdateProfileDtoDto updateProfile);
     }
 }

@@ -60,13 +60,13 @@ namespace KarenShop.Api.Infrastructures.Repository
                 else
                     return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
         }
 
-        public async Task<bool> UpdateUser(UpdateProfileDtoDto updateProfile)
+        public async Task<ShopUser> UpdateUser(UpdateProfileDtoDto updateProfile)
         {
             try
             {
@@ -80,11 +80,11 @@ namespace KarenShop.Api.Infrastructures.Repository
 
                 await _context.SaveChangesAsync();
 
-                return true;
+                return user;
             }
             catch (Exception)
             {
-                return false;
+                return null;
             }
 
         }

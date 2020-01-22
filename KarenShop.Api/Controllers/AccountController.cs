@@ -89,7 +89,7 @@ namespace KarenShop.Api.Controllers
             }
         }
 
-        [HttpPost("/api/v1/reset-password")]
+        [HttpPost("/api/v1/change-password")]
         public async Task<BaseResponseDto> ResetPassword(ResetPasswordDto model)
         {
             if (model.NewPassword != model.ConfirmNewPassword)
@@ -123,26 +123,43 @@ namespace KarenShop.Api.Controllers
         }
 
         [HttpPost("/api/v1/update-user")]
-        public async Task<BaseResponseDto> UpdateUser(UpdateProfileDtoDto model)
+        public async Task<ResponseUserDto> UpdateUser(UpdateProfileDtoDto model)
         {
             var result = await _shopUserRepository.UpdateUser(model);
-            if (result == true)
+            if (result != null)
             {
-                return new BaseResponseDto()
+                return new ResponseUserDto()
                 {
                     IsSuccess = true,
                     Error = "",
+                    Address = result.Address,
+                    CompanyName = result.CompanyName,
+                    Email = result.Email,
+                    FullName = result.FullName,
+                    Id = result.Id,
+                    IsSeller = result.IsSeller,
+                    PhoneNumber = result.PhoneNumber,
+                    ProfilePicture = result.ProfilePicture
                 };
             }
             else
             {
-                return new BaseResponseDto()
+                return new ResponseUserDto()
                 {
                     IsSuccess = false,
                     Error = "خطایی رخ داده است...",
+                    Id = 0,
+                    IsSeller = false
                 };
             }
+        }
 
+        [HttpGet("/api/api-data")]
+        public async Task<object> GetApiDataAsync()
+        {
+            return new UpdateProfileDtoDto()
+            {
+            };
         }
     }
 }
